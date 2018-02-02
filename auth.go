@@ -1,4 +1,4 @@
-package authenticator
+package auth
 
 // Authenticator is an interface for services providing authentication.
 // It is used by Badge as a badge-scanner as a passport database.
