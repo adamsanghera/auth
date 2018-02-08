@@ -19,12 +19,12 @@ type Authenticator interface {
 	IDExists(id interface{}) (bool, error)
 }
 
-type LocalPasswordRedisAuth struct {
+type RedisPasswordAuth struct {
 	pwdDB *redis.Client
 }
 
-func NewPasswordAuth(dbNum int) (LocalPasswordRedisAuth, error) {
-	pwdauth := LocalPasswordRedisAuth{
+func NewLocalPasswordAuth(dbNum int) (RedisPasswordAuth, error) {
+	pwdauth := RedisPasswordAuth{
 		pwdDB: redis.NewClient(&redis.Options{
 			Addr:     "localhost" + ":" + "6379",
 			Password: "",    // no password set
@@ -34,7 +34,7 @@ func NewPasswordAuth(dbNum int) (LocalPasswordRedisAuth, error) {
 	return pwdauth, pwdauth.pwdDB.Ping().Err()
 }
 
-func (p LocalPasswordRedisAuth) AddAuth(id interface{}, challenge interface{}) error {
+func (p RedisPasswordAuth) AddAuth(id interface{}, challenge interface{}) error {
 	s, ok := id.(string)
 	if !ok {
 		return errors.New("ID provided was not a string")
@@ -42,7 +42,7 @@ func (p LocalPasswordRedisAuth) AddAuth(id interface{}, challenge interface{}) e
 	return p.pwdDB.Set(s, challenge, 0).Err()
 }
 
-func (p LocalPasswordRedisAuth) RemoveAuth(id interface{}, challenge interface{}) error {
+func (p RedisPasswordAuth) RemoveAuth(id interface{}, challenge interface{}) error {
 	s, ok := id.(string)
 	if !ok {
 		return errors.New("ID provided was not a string")
@@ -55,7 +55,7 @@ func (p LocalPasswordRedisAuth) RemoveAuth(id interface{}, challenge interface{}
 	return p.pwdDB.Del(s).Err()
 }
 
-func (p LocalPasswordRedisAuth) Auth(id interface{}, challenge interface{}) (bool, error) {
+func (p RedisPasswordAuth) Auth(id interface{}, challenge interface{}) (bool, error) {
 	s, ok := id.(string)
 	if !ok {
 		return false, errors.New("ID provided was not a string")
@@ -70,7 +70,7 @@ func (p LocalPasswordRedisAuth) Auth(id interface{}, challenge interface{}) (boo
 	return false, errors.New("Bad challenge")
 }
 
-func (p LocalPasswordRedisAuth) IDExists(id interface{}) (bool, error) {
+func (p RedisPasswordAuth) IDExists(id interface{}) (bool, error) {
 	s, ok := id.(string)
 	if !ok {
 		return false, errors.New("ID provided was not a string")
